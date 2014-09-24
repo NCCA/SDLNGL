@@ -1,4 +1,6 @@
 #SDLNGL
+![alt tag](http://nccastaff.bournemouth.ac.uk/jmacey/GraphicsLib/Demos/SDLNGL.png)
+
 This is the simplest SDL / NGL demo using a basic SDL2.0 window and core profile OpenGL context
 
 Note that this .pro file contains the calls to add the output of sdl2-config to the build using

@@ -133,7 +133,7 @@ SDL_GLContext createOpenGLContext(SDL_Window *window)
   // but it should default to the core profile
   // for some reason we need this for mac but linux crashes on the latest nvidia drivers
   // under centos
-  #ifdef DARWIN
+  #ifdef __APPLE__
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);

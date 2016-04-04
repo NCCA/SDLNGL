@@ -11,16 +11,24 @@ isEqual(QT_MAJOR_VERSION, 5) {
 	cache()
 	DEFINES +=QT5BUILD
 }
+!win32:{
 # this demo uses SDL so add the paths using the sdl2-config tool
 QMAKE_CXXFLAGS+=$$system(sdl2-config  --cflags)
 message(output from sdl2-config --cflags added to CXXFLAGS= $$QMAKE_CXXFLAGS)
 
 LIBS+=$$system(sdl2-config  --libs)
 message(output from sdl2-config --libs added to LIB=$$LIBS)
+}
 
+win32 :{
+    message(Make sure that SDL2 is installed in C:\SDL2 and the libs are built)
+    INCLUDEPATH+=C:\SDL2\include
+    LIBS+=-LC:\SDL2\VisualC\SDL\x64\Debug -lSDL2
+    LIBS+=-LC:\SDL2\VisualC\SDLmain\x64\Debug -lSDL2main
 
+}
 
-# where to put moc auto generated files
+# where to put moc auto generated file
 MOC_DIR=moc
 # on a mac we don't create a .app bundle file ( for ease of multiplatform use)
 CONFIG-=app_bundle
@@ -62,3 +70,4 @@ else{ # note brace must be here
 	message("Using custom NGL location")
 	include($(NGLDIR)/UseNGL.pri)
 }
+

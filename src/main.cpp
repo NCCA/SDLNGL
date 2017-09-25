@@ -13,9 +13,11 @@ SDL_GLContext createOpenGLContext( SDL_Window *window);
 
 
 
-int main()
+int main(int argc, char * argv[])
 {
-
+  // under windows we must use main with argc / v so jus flag unused for params
+  NGL_UNUSED(argc);
+  NGL_UNUSED(argv);
   // Initialize SDL's Video subsystem
   if (SDL_Init(SDL_INIT_VIDEO) < 0 )
   {
@@ -45,7 +47,7 @@ int main()
    SDL_GLContext glContext=createOpenGLContext(window);
    if(!glContext)
    {
-     SDLErrorExit("Problem creating OpenGL context");
+     SDLErrorExit("Problem creating OpenGL context ");
    }
    // make this our current GL context (we can have more than one window but in this case not)
    SDL_GL_MakeCurrent(window, glContext);
@@ -122,6 +124,9 @@ int main()
   }
   // now tidy up and exit SDL
  SDL_Quit();
+ // whilst this code will never execute under windows we need to have a return from
+ // SDL_Main!
+ return EXIT_SUCCESS;
 }
 
 
@@ -139,8 +144,9 @@ SDL_GLContext createOpenGLContext(SDL_Window *window)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
   #else
-
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    // Note you may have to change this depending upon the driver (Windows is fussy)
+    // stick to 3.2 as the core base level for NGL works ok
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
@@ -151,7 +157,7 @@ SDL_GLContext createOpenGLContext(SDL_Window *window)
   // Turn on double buffering with a 24bit Z buffer.
   // You may need to change this to 16 or 32 for your system
   // on mac up to 32 will work but under linux centos build only 16
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   // enable double buffering (should be on by default)
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   //

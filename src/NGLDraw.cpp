@@ -1,10 +1,11 @@
 #include "NGLDraw.h"
 #include <ngl/ShaderLib.h>
 #include <ngl/NGLInit.h>
-#include <ngl/Material.h>
 #include <ngl/Transformation.h>
 const static float INCREMENT=0.01f;
 const static float ZOOM=0.05f;
+constexpr auto PBR="PBR";
+
 NGLDraw::NGLDraw()
 {
   m_rotate=false;
@@ -15,126 +16,131 @@ NGLDraw::NGLDraw()
   glClearColor(0.4f, 0.4f, 0.4f, 1.0f);			   // Grey Background
   // enable depth testing for drawing
   glEnable(GL_DEPTH_TEST);
-   // now to load the shader and set the values
+  // now to load the shader and set the values
   // grab an instance of shader manager
-  ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-  // we are creating a shader called Phong
-  shader->createShaderProgram("Phong");
+  ngl::ShaderLib* shader = ngl::ShaderLib::instance();
+  // we are creating a shader called PBR to save typos
+  // in the code create some constexpr
+  constexpr auto vertexShader  = "PBRVertex";
+  constexpr auto fragShader    = "PBRFragment";
+  // create the shader program
+  shader->createShaderProgram( PBR );
   // now we are going to create empty shaders for Frag and Vert
-  shader->attachShader("PhongVertex",ngl::ShaderType::VERTEX);
-  shader->attachShader("PhongFragment",ngl::ShaderType::FRAGMENT);
+  shader->attachShader( vertexShader, ngl::ShaderType::VERTEX );
+  shader->attachShader( fragShader, ngl::ShaderType::FRAGMENT );
   // attach the source
-  shader->loadShaderSource("PhongVertex","shaders/PhongVertex.glsl");
-  shader->loadShaderSource("PhongFragment","shaders/PhongFragment.glsl");
+  shader->loadShaderSource( vertexShader, "shaders/PBRVertex.glsl" );
+  shader->loadShaderSource( fragShader, "shaders/PBRFragment.glsl" );
   // compile the shaders
-  shader->compileShader("PhongVertex");
-  shader->compileShader("PhongFragment");
+  shader->compileShader( vertexShader );
+  shader->compileShader( fragShader );
   // add them to the program
-  shader->attachShaderToProgram("Phong","PhongVertex");
-  shader->attachShaderToProgram("Phong","PhongFragment");
-  // now bind the shader attributes for most NGL primitives we use the following
-  // layout attribute 0 is the vertex data (x,y,z)
-  shader->bindAttribute("Phong",0,"inVert");
-  // attribute 1 is the UV data u,v (if present)
-  shader->bindAttribute("Phong",1,"inUV");
-  // attribute 2 are the normals x,y,z
-  shader->bindAttribute("Phong",2,"inNormal");
-
-  // now we have associated this data we can link the shader
-  shader->linkProgramObject("Phong");
+  shader->attachShaderToProgram( PBR, vertexShader );
+  shader->attachShaderToProgram( PBR, fragShader );
+  // now we have associated that data we can link the shader
+  shader->linkProgramObject( PBR );
   // and make it active ready to load values
-  (*shader)["Phong"]->use();
-  // the shader will use the currently active material and light0 so set them
-  ngl::Material m(ngl::STDMAT::GOLD);
-  // load our material values to the shader into the structure material (see Vertex shader)
-  m.loadToShader("material");
-  // Now we will create a basic Camera from the graphics library
-  // This is a static camera so it only needs to be set once
-  // First create Values for the camera position
-  ngl::Vec3 from(0,1,1);
-  ngl::Vec3 to(0,0,0);
-  ngl::Vec3 up(0,1,0);
+  ( *shader )[ PBR ]->use();
+ // We now create our view matrix for a static camera
+  ngl::Vec3 from( 0.0f, 2.0f, 2.0f );
+  ngl::Vec3 to( 0.0f, 0.0f, 0.0f );
+  ngl::Vec3 up( 0.0f, 1.0f, 0.0f );
   // now load to our new camera
-  m_cam= new ngl::Camera(from,to,up);
-  // set the shape using FOV 45 Aspect Ratio based on Width and Height
-  // The final two are near and far clipping planes of 0.5 and 10
-  m_cam->setShape(45,(float)720.0/576.0,0.05,350);
-  shader->setUniform("viewerPos",m_cam->getEye().toVec3());
-  // now create our light this is done after the camera so we can pass the
-  // transpose of the projection matrix to the light to do correct eye space
-  // transformations
-  ngl::Mat4 iv=m_cam->getViewMatrix();
-  iv.transpose();
-  m_light = new ngl::Light(ngl::Vec3(-2,5,2),ngl::Colour(1,1,1,1),ngl::Colour(1,1,1,1),ngl::LightModes::POINTLIGHT );
-  m_light->setTransform(iv);
-  // load these values to the shader as well
-  m_light->loadToShader("light");
+  m_view=ngl::lookAt(from,to,up);
+  shader->setUniform( "camPos", from );
+  // setup the default shader material and light porerties
+  // these are "uniform" so will retain their values
+  shader->setUniform("lightPosition",0.0f,2.0f,2.0f);
+  shader->setUniform("lightColor",400.0f,400.0f,400.0f);
+  shader->setUniform("exposure",2.2f);
+  shader->setUniform("albedo",0.950f, 0.71f, 0.29f);
+
+  shader->setUniform("metallic",1.02f);
+  shader->setUniform("roughness",0.38f);
+  shader->setUniform("ao",0.2f);
+  ngl::VAOPrimitives::instance()->createTrianglePlane("floor",20,20,1,1,ngl::Vec3::up());
+
+  shader->use(ngl::nglCheckerShader);
+  shader->setUniform("lightDiffuse",1.0f,1.0f,1.0f,1.0f);
+  shader->setUniform("checkOn",true);
+  shader->setUniform("lightPos",0.0f,2.0f,2.0f);
+  shader->setUniform("colour1",0.9f,0.9f,0.9f,1.0f);
+  shader->setUniform("colour2",0.6f,0.6f,0.6f,1.0f);
+  shader->setUniform("checkSize",60.0f);
 }
 
 NGLDraw::~NGLDraw()
 {
   std::cout<<"Shutting down NGL, removing VAO's and Shaders\n";
-  delete m_light;
-  delete m_cam;
 }
 
 void NGLDraw::resize(int _w, int _h)
 {
-  glViewport(0,0,_w,_h);
-  // now set the camera size values as the screen size has changed
-  m_cam->setShape(45,(float)_w/_h,0.05,350);
+  glViewport(0,0, _w  , _h );
+  m_project=ngl::perspective( 45.0f, static_cast<float>( _w ) / _h, 0.1f, 200.0f );
+  m_width=_w;
+  m_height=_h;
 }
 
 void NGLDraw::draw()
 {
+  glViewport( 0, 0, m_width, m_height );
   // clear the screen and depth buffer
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   // grab an instance of the shader manager
-  ngl::ShaderLib *shader=ngl::ShaderLib::instance();
-  (*shader)["Phong"]->use();
+  ngl::ShaderLib* shader = ngl::ShaderLib::instance();
+  ( *shader )[ "PBR" ]->use();
 
   // Rotation based on the mouse position for our global transform
-  ngl::Transformation trans;
   ngl::Mat4 rotX;
   ngl::Mat4 rotY;
   // create the rotation matrices
-  rotX.rotateX(m_spinXFace);
-  rotY.rotateY(m_spinYFace);
+  rotX.rotateX( m_spinXFace );
+  rotY.rotateY( m_spinYFace );
   // multiply the rotations
-  m_mouseGlobalTX=rotY*rotX;
+  m_mouseGlobalTX = rotX * rotY;
   // add the translations
-  m_mouseGlobalTX.m_m[3][0] = m_modelPos.m_x;
-  m_mouseGlobalTX.m_m[3][1] = m_modelPos.m_y;
-  m_mouseGlobalTX.m_m[3][2] = m_modelPos.m_z;
-
-   // get the VBO instance and draw the built in teapot
-  ngl::VAOPrimitives *prim=ngl::VAOPrimitives::instance();
+  m_mouseGlobalTX.m_m[ 3 ][ 0 ] = m_modelPos.m_x;
+  m_mouseGlobalTX.m_m[ 3 ][ 1 ] = m_modelPos.m_y;
+  m_mouseGlobalTX.m_m[ 3 ][ 2 ] = m_modelPos.m_z;
+  // get the VBO instance and draw the built in teapot
+  ngl::VAOPrimitives* prim = ngl::VAOPrimitives::instance();
   // draw
   loadMatricesToShader();
-  prim->draw("teapot");
+  prim->draw( "teapot" );
+  shader->use(ngl::nglCheckerShader);
+  ngl::Mat4 tx;
+  tx.translate(0.0f,-0.45f,0.0f);
+  ngl::Mat4 MVP=m_project*m_view*m_mouseGlobalTX*tx;
+  ngl::Mat3 normalMatrix=m_view*m_mouseGlobalTX;
+  normalMatrix.inverse().transpose();
+  shader->setUniform("MVP",MVP);
+  shader->setUniform("normalMatrix",normalMatrix);
+  prim->draw("floor");
 }
 
 
 void NGLDraw::loadMatricesToShader()
 {
-  ngl::ShaderLib *shader=ngl::ShaderLib::instance();
+  ngl::ShaderLib* shader = ngl::ShaderLib::instance();
+   shader->use("PBR");
+   struct transform
+   {
+     ngl::Mat4 MVP;
+     ngl::Mat4 normalMatrix;
+     ngl::Mat4 M;
+   };
 
-  ngl::Mat4 MV;
-  ngl::Mat4 MVP;
-  ngl::Mat3 normalMatrix;
-  ngl::Mat4 M;
-  M=m_mouseGlobalTX;
-  MV=  m_cam->getViewMatrix()*M;
-  MVP= m_cam->getVPMatrix()*M;
-  normalMatrix=MV;
-  normalMatrix.inverse().transpose();
-  shader->setUniform("MV",MV);
-  shader->setUniform("MVP",MVP);
-  shader->setUniform("normalMatrix",normalMatrix);
-  shader->setUniform("M",M);
+    transform t;
+    t.M=m_view*m_mouseGlobalTX;
+
+    t.MVP=m_project*t.M;
+    t.normalMatrix=t.M;
+    t.normalMatrix.inverse().transpose();
+    shader->setUniformBuffer("TransformUBO",sizeof(transform),&t.MVP.m_00);
+
 }
-
 //----------------------------------------------------------------------------------------------------------------------
 void NGLDraw::mouseMoveEvent (const SDL_MouseMotionEvent &_event)
 {

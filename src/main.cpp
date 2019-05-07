@@ -138,28 +138,19 @@ SDL_GLContext createOpenGLContext(SDL_Window *window)
   // but it should default to the core profile
   // for some reason we need this for mac but linux crashes on the latest nvidia drivers
   // under centos
-  #ifdef __APPLE__
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-  #else
-    // Note you may have to change this depending upon the driver (Windows is fussy)
-    // stick to 3.2 as the core base level for NGL works ok
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-  #endif
+ //   SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
   // set multi sampling else we get really bad graphics that alias
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,4);
+  //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+  //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,4);
   // Turn on double buffering with a 24bit Z buffer.
   // You may need to change this to 16 or 32 for your system
   // on mac up to 32 will work but under linux centos build only 16
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   // enable double buffering (should be on by default)
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   //
   return SDL_GL_CreateContext(window);
 

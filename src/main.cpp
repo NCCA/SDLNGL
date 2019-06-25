@@ -136,25 +136,12 @@ int main(int argc, char * argv[])
 
 SDL_GLContext createOpenGLContext(SDL_Window *window)
 {
-  // Request an opengl 3.2 context first we setup our attributes, if you need any
-  // more just add them here before the call to create the context
-  // SDL doesn't have the ability to choose which profile at this time of writing,
-  // but it should default to the core profile
-  // for some reason we need this for mac but linux crashes on the latest nvidia drivers
-  // under centos
-  #ifdef __APPLE__
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-  #else
     // Note you may have to change this depending upon the driver (Windows is fussy)
     // stick to 4.5 as the core base level for NGL works ok
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-  #endif
   // set multi sampling else we get really bad graphics that alias
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
   SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,4);

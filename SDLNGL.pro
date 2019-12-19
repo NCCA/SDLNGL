@@ -22,11 +22,22 @@ message(output from sdl2-config --libs added to LIB=$$LIBS)
 macx:LIBS+= $$system(sdl2-config --static-libs)
 win32 :{
     message(Make sure that SDL2 is installed using vcpkg install SDL2 )
-  #  message("package dir is" $$VCPK)
-  INCLUDEPATH += $$(HOMEDRIVE)\\$$(HOMEPATH)\vcpkg\installed\x86-windows\include\SDL2
 
-  PRE_TARGETDEPS+=$$(HOMEDRIVE)\\$$(HOMEPATH)\vcpkg\installed\x86-windows\lib\SDL2.lib
-  LIBS+=-L$$(HOMEDRIVE)\\$$(HOMEPATH)\vcpkg\installed\x86-windows\lib\ -lSDL2
+        contains(QT_ARCH, i386) {
+            message("32-bit build")
+			INCLUDEPATH += $$(HOMEDRIVE)\\$$(HOMEPATH)\vcpkg\installed\x86-windows\include\SDL2
+			PRE_TARGETDEPS+=$$(HOMEDRIVE)\\$$(HOMEPATH)\vcpkg\installed\x86-windows\lib\SDL2.lib
+			LIBS+=-L$$(HOMEDRIVE)\\$$(HOMEPATH)\vcpkg\installed\x86-windows\lib\ -lSDL2
+
+        } 
+        else {
+            message("64-bit build")
+			INCLUDEPATH += $$(HOMEDRIVE)\\$$(HOMEPATH)\vcpkg\installed\x64-windows\include\SDL2
+			PRE_TARGETDEPS+=$$(HOMEDRIVE)\\$$(HOMEPATH)\vcpkg\installed\x64-windows\lib\SDL2.lib
+			LIBS+=-L$$(HOMEDRIVE)\\$$(HOMEPATH)\vcpkg\installed\x64-windows\lib\ -lSDL2
+        }
+
+
 }
 
 # where to put moc auto generated file

@@ -1,9 +1,15 @@
 cmake_minimum_required(VERSION 2.8.11)
+if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+  set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      CACHE STRING "")
+endif()
 # Name of the project
 set(PROJECT_NAME SDLNGL)
 project(${PROJECT_NAME})
+find_package(SDL2 CONFIG REQUIRED)
 #Bring the headers into the project (local ones)
 include_directories(include $ENV{HOME}/NGL/include)
+include_directories(include $ENV{HOME}/NGL/gl3w)
 
 #the file(GLOB...) allows for wildcard additions of our src dir
 set(SOURCES src/main.cpp  src/NGLDraw.cpp include/NGLDraw.h  )
@@ -28,13 +34,13 @@ add_definitions(-DQT5BUILD)
 # As there are no proper cmake packages for SDL2 yet we use the sdl2-config script instead
 # this is a good example of how to run a program / script in cmake
 # exec_program exe arguments and where we place the output
-exec_program(sdl2-config ARGS --cflags OUTPUT_VARIABLE SDL2INCLUDE)
+#exec_program(sdl2-config ARGS --cflags OUTPUT_VARIABLE SDL2INCLUDE)
 # once we have the output for the include path we set this to the CXX
-SET( CMAKE_CXX_FLAGS ${SDL2INCLUDE})
-message("sdl2-config --cflags gives " =${SDL2INCLUDE})
+#SET( CMAKE_CXX_FLAGS ${SDL2INCLUDE})
+#message("sdl2-config --cflags gives " =${SDL2INCLUDE})
 
-exec_program(sdl2-config ARGS --libs OUTPUT_VARIABLE SDL2_LIBRARIES)
-message("sdl2-config --libs gives " =${SDL2_LIBRARIES})
+#exec_program(sdl2-config ARGS --libs OUTPUT_VARIABLE SDL2_LIBRARIES)
+#message("sdl2-config --libs gives " =${SDL2_LIBRARIES})
 
 # NGL also needs the OpenGL framework from Qt so add it
 find_package(Qt5OpenGL)
@@ -42,5 +48,5 @@ find_package(Qt5OpenGL)
 # add exe and link libs this must be after the other defines
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} ${PROJECT_LINK_LIBS} Qt5::OpenGL ${SDL2_LIBRARIES}   )
+target_link_libraries(${PROJECT_NAME} ${PROJECT_LINK_LIBS} Qt5::OpenGL  SDL2::SDL2main SDL2::SDL2-static)
 

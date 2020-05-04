@@ -14,9 +14,13 @@ isEqual(QT_MAJOR_VERSION, 5) {
 !win32:{
 # this demo uses SDL so add the paths using the sdl2-config tool
 QMAKE_CXXFLAGS+=$$system(sdl2-config  --cflags)
+QMAKE_CXXFLAGS+=$$system(pkg-config  --cflags sdl2)
+
 message(output from sdl2-config --cflags added to CXXFLAGS= $$QMAKE_CXXFLAGS)
 
 LIBS+=$$system(sdl2-config  --libs)
+LIBS+=$$system(pkg-config  --libs sdl2)
+LIBS+=-ldl
 message(output from sdl2-config --libs added to LIB=$$LIBS)
 }
 macx:LIBS+= $$system(sdl2-config --static-libs)

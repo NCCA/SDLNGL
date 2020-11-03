@@ -1,7 +1,7 @@
 #ifdef WIN32
     #define SDL_MAIN_HANDLED
 #endif
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <cstdlib>
 #include <iostream>
 #include "NGLDraw.h"
@@ -37,7 +37,7 @@ int main(int argc, char * argv[])
                                       SDL_WINDOWPOS_CENTERED,
                                       rect.w/2,
                                       rect.h/2,
-                                      SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+                                      SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
                                      );
   // check to see if that worked or exit
   if (!window)
@@ -59,7 +59,7 @@ int main(int argc, char * argv[])
   // we need to initialise the NGL lib which will load all of the OpenGL functions, this must
   // be done once we have a valid GL context but before we call any GL commands. If we dont do
   // this everything will crash
-  ngl::NGLInit::initalize();
+  ngl::NGLInit::initialize();
   // now clear the screen and swap whilst NGL inits (which may take time)
   glClear(GL_COLOR_BUFFER_BIT);
   SDL_GL_SwapWindow(window);
@@ -139,7 +139,7 @@ SDL_GLContext createOpenGLContext(SDL_Window *window)
     // Note you may have to change this depending upon the driver (Windows is fussy)
     // stick to 4.5 as the core base level for NGL works ok
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
   // set multi sampling else we get really bad graphics that alias

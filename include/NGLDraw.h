@@ -1,7 +1,7 @@
 #ifndef NGLDRAW_H_
 #define NGLDRAW_H_
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <ngl/Mat4.h>
 #include <ngl/Vec3.h>
 

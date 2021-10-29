@@ -71,8 +71,6 @@ int main(int argc, char * argv[])
   // opengl stuff ext. When this falls out of scope the dtor will be called and cleanup
   // our gl stuff
   NGLDraw ngl;
-  // resize the ngl to set the screen size and camera stuff
-  ngl.resize(rect.w,rect.h);
   while(!quit)
   {
 
@@ -93,7 +91,11 @@ int main(int argc, char * argv[])
           int w,h;
           // get the new window size
           SDL_GetWindowSize(window,&w,&h);
-          ngl.resize(w,h);
+          #ifdef __APPLE__
+            ngl.resize(w*2,h*2);
+          #else
+            ngl.resize(w,h);
+          #endif
         break;
 
         // now we look for a keydown event
@@ -107,7 +109,7 @@ int main(int argc, char * argv[])
             case SDLK_s : glPolygonMode(GL_FRONT_AND_BACK,GL_FILL); break;
             case SDLK_f :
             SDL_SetWindowFullscreen(window,SDL_TRUE);
-            glViewport(0,0,rect.w,rect.h);
+            glViewport(0,0,rect.w*2,rect.h*2);
             break;
 
             case SDLK_g : SDL_SetWindowFullscreen(window,SDL_FALSE); break;

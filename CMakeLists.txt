@@ -34,6 +34,10 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
 			${PROJECT_SOURCE_DIR}/src/NGLDraw.cpp  
 			${PROJECT_SOURCE_DIR}/include/NGLDraw.h  
 )
+# need to add some exta libs for SDL under linux
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    target_link_libraries(${TargetName} PRIVATE  -lX11 -lXext)
+endif()
 
 target_link_libraries(${TargetName} PRIVATE  NGL)
 # Link in the SDL2 libraries

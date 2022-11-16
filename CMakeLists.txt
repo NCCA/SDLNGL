@@ -49,7 +49,7 @@ endif()
 target_link_libraries(${TargetName} PRIVATE NGL)
 
 # Link in the SDL2 libraries
-target_link_libraries(${TargetName} PRIVATE SDL2::SDL2-static)
+target_link_libraries(${TargetName} PRIVATE SDL2::SDL2)
 
 add_custom_target(${TargetName}CopyShaders ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
